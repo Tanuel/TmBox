@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<!--
+Copyright (C) 2017 Daniel Schuster <tanuel.mategi@gmail.com>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<html>
+    <head>
+        <title>TmDropdown | TmSnippets</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://tanuel.github.io/assets/css/style.css">
+        <link rel="stylesheet" href="css/TmBox.css">
+        <script src="js/TmBox.js"></script>
+        <script src="js/TmBox-examples.js"></script>
+        <style>
+            .triple-section{
+                display:flex;
+            }
+            .triple-section > section{
+                min-width:250px;
+            }
+            .green-border{
+                border:1px solid green;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>TmBox </h1>
+        <h2>by <a href="https://tanuel.github.io">Tanuel</a></h2>
+        <p>TmBox is a lightweight JavaScript Plugin that allows you to somewhat recreate the functionality of native JS Alerts, Confirms and Prompts,
+        but has more possibilities of styling and callbacks</p>
+        <p>This plugin doesnt need any other Library</p>
+        <p><b><a href="https://github.com/Tanuel/TmBox/releases/latest" target="_blank">Download here</a></b> or <a target="_blank" href="https://github.com/tanuel/tmbox"><b>view the source on Github</b></a>
+
+        <h3>Examples (<a href="tmBoxExample.js" target="_blank">JS source code</a>)</h3>
+        <div>
+    <button id="showConfirmBox">ConfirmBox</button>
+    <button id="showAlertBox">AlertBox</button>
+    <button id="showInputBox">InputBox</button>
+</div>
+        
+        <h3>Linking the files</h3>
+        <code>
+&lt;link rel="stylesheet" href="tmBox.css"&gt;
+&lt;script src="tmBox.js"&gt;&lt;/script&gt;
+        </code>
+        <hr>
+        <h3>Usage</h3>
+        <details open><summary>HTML</summary>
+        <code>&lt;div&gt;
+    &lt;button id="showConfirmBox"&gt;ConfirmBox&lt;/button&gt;
+    &lt;button id="showAlertBox"&gt;AlertBox&lt;/button&gt;
+    &lt;buttonid="showInputBox"&gt;InputBox&lt;/button&gt;
+&lt;/div&gt;</code>
+            </details>
+
+        <details><summary>Javascript: (simple Usage)</summary>
+<code>$(document).ready(function(){
+    $("#showConfirmBox").click(function(){
+        var box = new TmBoxConfirm("this is a tmBoxConfirm");
+        //box.setMessage("ConfirmBox");
+        box.onConfirm(function(){
+            console.log("confirmed");
+        });
+        box.onCancel(function(){
+            console.log("canceled");
+        });
+        box.display();
+    });
+    
+    $("#showAlertBox").click(function(){
+        var box = new TmBoxAlert("this is a tmBoxAlert");
+        //box.setMessage("AlertBox");
+        box.onConfirm(function(){
+            console.log("confirmed");
+        });
+        box.display();
+    });
+    
+    $("#showInputBox").click(function(){
+        var box = new TmBoxPrompt("this is a tmBoxPrompt");
+        //box.setMessage("InputBox");
+        box.onConfirm(function(input){
+            console.log("confirmed with input "+input);
+        });
+        box.onCancel(function(input){
+            console.log("canceled with input "+input);
+        });
+        box.display();
+    });
+
+});</code></details>
+        <details>
+            <summary>JavaScript - TmBoxAlert (with options)</summary>
+            <code>var box = new TmBoxAlert({
+    title: "Title",
+    message: "This is an alert",
+    onConfirm: function (){
+        console.log("alert confirmed);
+    },
+    button: {
+        class: "customClass",
+        label: "Custom Label"
+    }
+});</code>
+         </details>
+        <details>
+            <summary>JavaScript - TmBoxConfirm (with options)</summary>
+            <code>var box = new TmBoxConfirm({
+    title: "Confirm this please",
+    message: "This is a TmBoxConfirm",
+    onConfirm: function (){
+        console.log(confirmed by option");
+    },
+    onCancel: function (){
+      console.log("canceled by Option")  
+    },
+    buttonConfirm: {
+        class: "customConfirmClass",
+        label: "Confirm Label"
+    },
+    buttonCancel: {
+        class: "customCancelClass",
+        label: "Cancel Label"
+    }
+});</code>
+         </details>
+        <details>
+            <summary>JavaScript - TmBoxPrompt(with Optionen)</summary>
+            <code>var box = new TmBoxPrompt({
+    title: "TmBoxPrompt",
+    message: "This is a TmBoxPrompt",
+    input: {
+        value:"Default Value",
+        placeholder: "Placeholder",
+        class: "customInputClass",
+        type: "text"
+    },
+    onConfirm: function (value){
+        console.log("Confirmed with value "+value);
+    },
+    onCancel: function (value){
+      console.log("Canceled with value "+value);
+    },
+    buttonConfirm: {
+        class: "customConfirmClass",
+        label: "Confirm Label"
+    },
+    buttonCancel: {
+        class: "customCancelClass",
+        label: "Cancel Label"
+    }
+});</code>
+         </details>
+        <div>&copy; 2017 Daniel Schuster &lt;tanuel.mategi@gmail.com&gt;</div>
+    </body>
+</html>

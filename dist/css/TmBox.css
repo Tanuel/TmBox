@@ -1,0 +1,52 @@
+.tmBox-outer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000000;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.tmBox {
+  background: #fff;
+  margin: 0 auto;
+  vertical-align: middle;
+  display: inline-block;
+  padding: 2em;
+  position: absolute;
+  border-radius: 5px;
+  max-width: 90%;
+}
+.tmBox .tmBox-title {
+  font-weight: bold;
+  font-size: 1.5em;
+  margin-bottom: 0.66em;
+}
+.tmBox .tmBox-message, .tmBox .tmBox-special {
+  margin-bottom: 1em;
+}
+.tmBox .tmBox-buttons {
+  text-align: right;
+}
+.tmBox .tmBox-buttons > button {
+  margin-right: 0.66em;
+  cursor: pointer;
+  background-color: #bb2222;
+  border: 1px solid #bb2222;
+  border-radius: 4px;
+  color: #fff;
+  padding: 0.33em 1em;
+  outline: 0;
+}
+.tmBox .tmBox-buttons > button:hover {
+  background-color: #901a1a;
+  border-color: #901a1a;
+}
+.tmBox .tmBox-buttons > button:last-child {
+  margin-right: 0;
+}
+
+/*# sourceMappingURL=TmBox.css.map */
