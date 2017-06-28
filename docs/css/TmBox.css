@@ -28,6 +28,9 @@
 .tmBox .tmBox-message, .tmBox .tmBox-special {
   margin-bottom: 1em;
 }
+.tmBox input.tmBox-input {
+  padding: 0.2em 0.33em;
+}
 .tmBox .tmBox-buttons {
   text-align: right;
 }

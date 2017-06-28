@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 (new TmBoxAlert("Confirmed with value " + value)).display();
             },
             onCancel: function (value) {
-                (new TmBoxAlert("Canceled with value" + value)).display();
+                (new TmBoxAlert("Canceled with value " + value)).display();
             },
             buttonConfirm: {
                 class: "customConfirmClass",

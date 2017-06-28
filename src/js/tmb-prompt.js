@@ -3,15 +3,15 @@ class TmBoxPrompt extends TmBox {
         super();
         var options;
         if (typeof messageOrOptions === "string") {
-            this.setMessage(messageOrOptions);
+            this.message = messageOrOptions;
             this._options = options = {};
             this._confirmCallback = confirmCallback;
         } else if (typeof messageOrOptions === "object") {
-            this.setMessage(messageOrOptions.message);
+            this.message = messageOrOptions.message;
             this._options = options = messageOrOptions;
         }
         if(typeof options.title === "string"){
-            this.setTitle(options.title);
+            this.title = options.title;
         }
        
         let _this = this;
@@ -76,11 +76,12 @@ class TmBoxPrompt extends TmBox {
         }
         spec.addEventListener("keydown",function (e) {
             //keycode 13 = enter
-            if (e.which === 13) {
+            let key = e.which || e.keyCode;
+            if (key === 13) {
                 //confirm if the user presses enter
                 _this.domElement.find('.tmBox-confirm').click();
             //keycode 27 = escape
-            } else if (e.which === 27) {
+            } else if (key === 27) {
                 //cancel if the user presses escape
                 _this.domElement.find('.tmBox-cancel').click();
             }

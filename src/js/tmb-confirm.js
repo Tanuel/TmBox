@@ -7,15 +7,15 @@ class TmBoxConfirm extends TmBox {
         super();
         var options;
         if (typeof messageOrOptions === "string") {
-            this.setMessage(messageOrOptions);
+            this.message = messageOrOptions;
             this._options = options = {};
             this._confirmCallback = confirmCallback;
         } else if (typeof messageOrOptions === "object") {
-            this.setMessage(messageOrOptions.message);
+            this.message = messageOrOptions.message;
             this._options = options = messageOrOptions;
         }
         if(typeof options.title === "string"){
-            this.setTitle(options.title)
+            this.title = options.title;
         }
        
         var _this = this;
@@ -37,11 +37,7 @@ class TmBoxConfirm extends TmBox {
                 buttonConfirmClass += " "+options.buttonConfirm.class;
             }
         }
-        super.addButton(buttonConfirmLabel, buttonConfirmClass, function () {
-            if (typeof _this._confirmCallback === 'function') {
-                _this._confirmCallback();
-            }
-        });
+        super.addButton(buttonConfirmLabel, buttonConfirmClass, this._confirmCallback.bind(this));
         
         var buttonCancelLabel = "Cancel";
         var buttonCancelClass = "tmBox-cancel";
@@ -53,11 +49,7 @@ class TmBoxConfirm extends TmBox {
                 buttonCancelClass += " "+options.buttonCancel.class;
             }
         }
-        super.addButton(buttonCancelLabel, buttonCancelClass, function () {
-            if (typeof _this._cancelCallback === 'function') {
-                _this._cancelCallback();
-            }
-        });
+        super.addButton(buttonCancelLabel, buttonCancelClass, this._cancelCallback.bind(this));
     }
 
     addButton() {

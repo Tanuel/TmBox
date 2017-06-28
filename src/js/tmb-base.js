@@ -1,24 +1,38 @@
 class TmBox {
-    constructor(message = '') {
-        this.message = message;
-        this.title;
-        this.specialContent;
-        this.onDisplayCallback;
+    constructor(options = '') {
+        if(typeof options === 'object'){
+            this.message = options.message;
+            this.title = options.title;
+            this.specialContent = options.special;
+            this.onDisplayCallback = options.onDisplay;
+        }else if(typeof options === 'string'){
+            this.message = options;
+            this.title;
+            this.specialContent;
+            this.onDisplayCallback;
+        }
+        
         this.domElement;
         this.buttons = new Array();
     }
-    setMessage(message) {
-        this.message = message;
+    set message(message) {
+        this._message = message;
     }
-    setTitle(title){
-        this.title = title;
+    get message(){
+        return this._message;
+    }
+    set title(title){
+        this._title = title;
+    }
+    get title(){
+        return this._title;
     }
     onDisplay(callback) {
         this.onDisplayCallback = callback;
     }
 
     addButton(text, className = '', callback = undefined) {
-        var btn = {text: text, className: className, callback: callback};
+        let btn = {text: text, className: className, callback: callback};
         this.buttons.push(btn);
     }
     repositionBox() {
@@ -29,35 +43,47 @@ class TmBox {
     destroy() {
         this.domElement.parentNode.removeChild(this.domElement);
     }
-
+    
+    _repositionByGlobalEvent(){
+        if(this.domElement){
+            this.repositionBox();
+        }
+    }
+    
+    _destroyByEvent(btnCallback,event) {
+        if (typeof btnCallback === "function" && btnCallback(event) === false) {
+                return;
+        }
+        this.destroy();
+    }
+    
     display() {
-        var _this = this;
         if(this.domElement){
             this.destroy();
         }
-        let htmlWrapper = document.createElement("div");
+        const create = document.createElement.bind(document),
+              htmlWrapper = create("div"),
+              box = create("div"),
+              msg = create("div");
         htmlWrapper.className = "tmBox-outer";
-        let box = document.createElement("div");
-        box.className = "tmBox";
         
-        htmlWrapper.appendChild(box);
+        box.className = "tmBox";
         
         //create title
         if (this.title) {
-            let titleElement = document.createElement("div");
+            let titleElement = create("div");
             titleElement.className = "tmBox-title";
             titleElement.innerHTML = this.title;
             box.appendChild(titleElement);
         }
         //create Message
-        let msg = document.createElement("div");
         msg.className = "tmBox-message";
         msg.innerHTML = this.message;
         box.appendChild(msg);
 
         //create Special
-        if (typeof this.specialContent !== "undefined") {
-            let special = document.createElement('div');
+        if (this.specialContent) {
+            let special = create('div');
             special.className = "tmBox-special";
             if(typeof this.specialContent === 'string'){
                 special.innerHTML = this.specialContent;
@@ -68,30 +94,49 @@ class TmBox {
         }
 
 
-        let buttonsObj = document.createElement("div");
-        buttonsObj.className = "tmBox-buttons";
-        this.buttons.forEach(function (btn) {
-            var btnStr = '<button' + (btn.className != '' ? ' class="' + btn.className + '"' : '') + '>' + btn.text + '</button>';
-            let btnObj = document.createElement("button");
-            btnObj.className = btn.className !== '' ? ' class="' + btn.className + '"' : '';
-            btnObj.innerText = btn.text;
-            btnObj.addEventListener('click', function () {
-                if (typeof btn.callback === "function") {
-                    btn.callback();
-                }
-                _this.destroy();
-            });
-            buttonsObj.appendChild(btnObj);
-        });
+        const buttonsObj = this._createButtonContainer(this.buttons);
         box.appendChild(buttonsObj);
 
+        
+        htmlWrapper.appendChild(box);
         this.domElement = htmlWrapper;
         document.body.appendChild(this.domElement);
         this.repositionBox();
         this.repositionBox();
+        
         if (typeof this.onDisplayCallback === "function") {
             this.onDisplayCallback();
         }
+        
+        window.addEventListener("resize",this._repositionByGlobalEvent.bind(this));
         return;
+    }
+    
+    /**
+     * 
+     * @param {Array} buttons
+     * @returns {HTMLDivElement}
+     */
+    _createButtonContainer(buttons){
+        let buttonsObj = document.createElement("div");
+        buttonsObj.className = "tmBox-buttons";
+        for (let btn of buttons){
+            buttonsObj.appendChild(this._createButton(btn));
+        }
+        return buttonsObj;
+    }
+    
+    /**
+     * 
+     * @param {Array} btn
+     * Array with button information
+     * @returns {HTMLDivElement}
+     */
+    _createButton(btn){
+        let buttonObj = document.createElement("button");
+        buttonObj.className = btn.className !== '' ? ' class="' + btn.className + '"' : '';
+        buttonObj.innerText = btn.text;
+        buttonObj.addEventListener('click', this._destroyByEvent.bind(this,btn.callback));
+        return buttonObj;
     }
 }

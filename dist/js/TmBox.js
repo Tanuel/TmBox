@@ -1,7 +1,8 @@
 /*! TmBox v0.1.0
  *(C) Daniel Schuster <tanuel.mategi@gmail.com> 2017
- */
-;(function (window) {
+ * */
+;(function (window,document) {
+	"use strict;"
 /* 
  not implemented in the main tmBox.js
  */
@@ -24,19 +25,33 @@ var TmBoxConfig = {
     }
 }
 class TmBox {
-    constructor(message = '') {
-        this.message = message;
-        this.title;
-        this.specialContent;
-        this.onDisplayCallback;
+    constructor(options = '') {
+        if(typeof options === 'object'){
+            this.message = options.message;
+            this.title = options.title;
+            this.specialContent = options.special;
+            this.onDisplayCallback = options.onDisplay;
+        }else if(typeof options === 'string'){
+            this.message = options;
+            this.title;
+            this.specialContent;
+            this.onDisplayCallback;
+        }
+        
         this.domElement;
         this.buttons = new Array();
     }
-    setMessage(message) {
-        this.message = message;
+    set message(message) {
+        this._message = message;
     }
-    setTitle(title){
-        this.title = title;
+    get message(){
+        return this._message;
+    }
+    set title(title){
+        this._title = title;
+    }
+    get title(){
+        return this._title;
     }
     onDisplay(callback) {
         this.onDisplayCallback = callback;
@@ -54,9 +69,23 @@ class TmBox {
     destroy() {
         this.domElement.parentNode.removeChild(this.domElement);
     }
-
+    
+    _repositionByGlobalEvent(){
+        if(this.domElement){
+            this.repositionBox();
+        }
+    }
+    
+    _destroyByEvent(btnCallback,event) {
+        if (typeof btnCallback === "function") {
+            if(btnCallback() === false){
+                return;
+            }
+        }
+        this.destroy();
+    }
+    
     display() {
-        var _this = this;
         if(this.domElement){
             this.destroy();
         }
@@ -64,8 +93,6 @@ class TmBox {
         htmlWrapper.className = "tmBox-outer";
         let box = document.createElement("div");
         box.className = "tmBox";
-        
-        htmlWrapper.appendChild(box);
         
         //create title
         if (this.title) {
@@ -93,23 +120,11 @@ class TmBox {
         }
 
 
-        let buttonsObj = document.createElement("div");
-        buttonsObj.className = "tmBox-buttons";
-        this.buttons.forEach(function (btn) {
-            var btnStr = '<button' + (btn.className != '' ? ' class="' + btn.className + '"' : '') + '>' + btn.text + '</button>';
-            let btnObj = document.createElement("button");
-            btnObj.className = btn.className !== '' ? ' class="' + btn.className + '"' : '';
-            btnObj.innerText = btn.text;
-            btnObj.addEventListener('click', function () {
-                if (typeof btn.callback === "function") {
-                    btn.callback();
-                }
-                _this.destroy();
-            });
-            buttonsObj.appendChild(btnObj);
-        });
+        let buttonsObj = this._createButtonContainer(this.buttons);
         box.appendChild(buttonsObj);
 
+        
+        htmlWrapper.appendChild(box);
         this.domElement = htmlWrapper;
         document.body.appendChild(this.domElement);
         this.repositionBox();
@@ -117,7 +132,36 @@ class TmBox {
         if (typeof this.onDisplayCallback === "function") {
             this.onDisplayCallback();
         }
+        window.addEventListener("resize",this._repositionByGlobalEvent.bind(this));
         return;
+    }
+    
+    /**
+     * 
+     * @param {Array} buttons
+     * @returns {HTMLDivElement}
+     */
+    _createButtonContainer(buttons){
+        let buttonsObj = document.createElement("div");
+        buttonsObj.className = "tmBox-buttons";
+        for (let btn of buttons){
+            buttonsObj.appendChild(this._createButton(btn));
+        }
+        return buttonsObj;
+    }
+    
+    /**
+     * 
+     * @param {Array} btn
+     * Array with button information
+     * @returns {HTMLDivElement}
+     */
+    _createButton(btn){
+        let buttonObj = document.createElement("button");
+        buttonObj.className = btn.className !== '' ? ' class="' + btn.className + '"' : '';
+        buttonObj.innerText = btn.text;
+        buttonObj.addEventListener('click', this._destroyByEvent.bind(this,btn.callback));
+        return buttonObj;
     }
 }
 /**
@@ -127,21 +171,15 @@ class TmBox {
 
 class TmBoxAlert extends TmBox {
     constructor(messageOrOptions, confirmCallback = undefined) {
-        super();
+        super(messageOrOptions);
         var options;
         if (typeof messageOrOptions === "string") {
-            this.setMessage(messageOrOptions);
             this._options = options = {};
-            this._confirmCallback = confirmCallback;
+            this.onConfirm = confirmCallback;
         } else if (typeof messageOrOptions === "object") {
-            this.setMessage(messageOrOptions.message);
             this._options = options = messageOrOptions;
         }
-       
-        if(typeof options.title === "string"){
-            this.setTitle(options.title)
-        }
-       
+        
         var _this = this;
         if(typeof options.onConfirm === "function"){
             this._confirmCallback = options.onConfirm;
@@ -157,18 +195,20 @@ class TmBoxAlert extends TmBox {
                 buttonClass += " "+options.button.class;
             }
         }
-        super.addButton(buttonLabel, buttonClass, function () {
+        
+        super.addButton(buttonLabel, buttonClass, this._confirmCallback.bind(this));
+        /*super.addButton(buttonLabel, buttonClass, function () {
             if (typeof _this._confirmCallback === 'function') {
                 _this._confirmCallback();
             }
-        });
+        });*/
     }
 
     addButton() {
         throw "Invalid call";
     }
 
-    onConfirm(callback) {
+    set onConfirm(callback) {
         this._confirmCallback = callback;
     }
 }
@@ -183,15 +223,15 @@ class TmBoxConfirm extends TmBox {
         super();
         var options;
         if (typeof messageOrOptions === "string") {
-            this.setMessage(messageOrOptions);
+            this.message = messageOrOptions;
             this._options = options = {};
             this._confirmCallback = confirmCallback;
         } else if (typeof messageOrOptions === "object") {
-            this.setMessage(messageOrOptions.message);
+            this.message = messageOrOptions.message;
             this._options = options = messageOrOptions;
         }
         if(typeof options.title === "string"){
-            this.setTitle(options.title)
+            this.title = options.title;
         }
        
         var _this = this;
@@ -253,15 +293,15 @@ class TmBoxPrompt extends TmBox {
         super();
         var options;
         if (typeof messageOrOptions === "string") {
-            this.setMessage(messageOrOptions);
+            this.message = messageOrOptions;
             this._options = options = {};
             this._confirmCallback = confirmCallback;
         } else if (typeof messageOrOptions === "object") {
-            this.setMessage(messageOrOptions.message);
+            this.message = messageOrOptions.message;
             this._options = options = messageOrOptions;
         }
         if(typeof options.title === "string"){
-            this.setTitle(options.title);
+            this.title = options.title;
         }
        
         let _this = this;
@@ -326,11 +366,12 @@ class TmBoxPrompt extends TmBox {
         }
         spec.addEventListener("keydown",function (e) {
             //keycode 13 = enter
-            if (e.which === 13) {
+            let key = e.which || e.keyCode;
+            if (key === 13) {
                 //confirm if the user presses enter
                 _this.domElement.find('.tmBox-confirm').click();
             //keycode 27 = escape
-            } else if (e.which === 27) {
+            } else if (key === 27) {
                 //cancel if the user presses escape
                 _this.domElement.find('.tmBox-cancel').click();
             }
@@ -350,4 +391,4 @@ class TmBoxPrompt extends TmBox {
     }
 }
 window.TmBoxPrompt = TmBoxPrompt;
-})(window);
+})(window,document);
